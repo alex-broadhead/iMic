@@ -20,6 +20,8 @@ extension MPVolumeView {
     }
 }
 
+var overrideSystemVolume: Bool = false  // MAB - Max volume is not nice for testing...
+
 struct ContentView: View {
     @State var audioHandler: AudioHandler = AudioHandler()
     @State var showPlay: Bool = true
@@ -30,13 +32,17 @@ struct ContentView: View {
             Text("")
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
                     print("Will resign active!")
-                    audioHandler.returnSystemVolume()
+                    if overrideSystemVolume {
+                        audioHandler.returnSystemVolume()
+                    }
                 }
             
             Text("")
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
                     print("Did become active!")
-                    audioHandler.setSystemVolumeToMax()
+                    if overrideSystemVolume {
+                        audioHandler.setSystemVolumeToMax()
+                    }
                 }
             
             Text("iMic").font(.system(size: 45)).font(.largeTitle)
@@ -71,7 +77,9 @@ struct ContentView: View {
             print("Did appear!")
             audioHandler.enableBluetoothOutput()    // send output to Bluetooth, if available
             audioHandler.loadAudio()                // load our file
-            audioHandler.setSystemVolumeToMax()
+            if overrideSystemVolume {
+                audioHandler.setSystemVolumeToMax() // override system volume
+            }
         }
     }
 }
@@ -146,6 +154,7 @@ class AudioHandler: NSObject, ObservableObject, AVAudioPlayerDelegate {
         return AVAudioSession.sharedInstance().outputVolume
     }
     
+    // WARNING! - Changing the system volume directly is likely to get your app rejected!
     func setSystemVolumeToMax() {
         systemVolume = getSystemVolume()
         print("Saving volume of \(systemVolume)!")
