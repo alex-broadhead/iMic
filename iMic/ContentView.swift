@@ -43,7 +43,8 @@ struct ContentView: View {
         }
         
         .onAppear {
-            audioHandler.loadAudio()
+            audioHandler.loadAudio()                // load and play our file
+            audioHandler.enableBluetoothOutput()    // send output to Bluetooth, if available
         }
     }
 }
@@ -91,6 +92,24 @@ class AudioHandler: NSObject, ObservableObject, AVAudioPlayerDelegate {
             // For now, loop endlessly
             loadAudio()
             play()
+        }
+    }
+    
+    func enableBluetoothOutput() {
+        let session = AVAudioSession.sharedInstance()
+        
+        // This block disables Bluetooth playback
+//        do {
+//            try session.setCategory(.playback, options: AVAudioSession.CategoryOptions.defaultToSpeaker)
+//        } catch {
+//            print("AVAudioSession error!")
+//        }
+        
+        // This block enables Bluetooth playback
+        do {
+            try session.setCategory(.playback, options: AVAudioSession.CategoryOptions.allowBluetooth)
+        } catch {
+            print("AVAudioSession error!")
         }
     }
 }
