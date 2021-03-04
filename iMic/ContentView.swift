@@ -9,6 +9,8 @@ import SwiftUI
 import AVKit
 import MediaPlayer
 
+var overrideSystemVolume: Bool = true  // MAB - Max volume is not nice for testing...
+
 extension MPVolumeView {
     static func setVolume(_ volume: Float) {
         let volumeView = MPVolumeView()
@@ -20,15 +22,18 @@ extension MPVolumeView {
     }
 }
 
-var overrideSystemVolume: Bool = false  // MAB - Max volume is not nice for testing...
-
 struct ContentView: View {
     @State var audioHandler: AudioHandler = AudioHandler()
     @State var showPlay: Bool = true
-    
+    @State var gain: Float = 0.5
+
     var body: some View {
         VStack {
+            // HIDDEN NON-LABELS
+            
             // MAB - These are super hacky, but work to handle notifications!
+            //       I don't know why I have to anchor these to invisible UI components.
+            
             Text("")
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
                     print("Will resign active!")
@@ -44,6 +49,8 @@ struct ContentView: View {
                         audioHandler.setSystemVolumeToMax()
                     }
                 }
+            
+            // DISPLAYED LABELS AND CONTROLS
             
             Text("iMic").font(.system(size: 45)).font(.largeTitle)
             
@@ -71,8 +78,14 @@ struct ContentView: View {
                     }
                 }
             }
+            
+            Slider(value: $gain, in: 0.0...1.0, step: 0.01)
+                .padding(/*@START_MENU_TOKEN@*/.all, 10.0/*@END_MENU_TOKEN@*/)
+                .onChange(of: gain) { newValue in
+                    audioHandler.gainAdjust(gain)
+                }
+            Text("Volume:  \(Int(100.0*gain))%")
         }
-        
         .onAppear {
             print("Did appear!")
             audioHandler.enableBluetoothOutput()    // send output to Bluetooth, if available
@@ -80,6 +93,7 @@ struct ContentView: View {
             if overrideSystemVolume {
                 audioHandler.setSystemVolumeToMax() // override system volume
             }
+            audioHandler.gainAdjust(gain)           // set initial gain
         }
     }
 }
@@ -87,14 +101,16 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+            .padding(.top)
     }
 }
 
 class AudioHandler: NSObject, ObservableObject, AVAudioPlayerDelegate {
-    @Published var audioPlayer: AVAudioPlayer!
-    @Published var isPlaying: Bool = false
+    @Published var isPlaying: Bool = false  // not used for now
     
     var myAudioPlayer = AVAudioPlayer()
+    
+    // USER CONTROLS
     
     func play() {
         myAudioPlayer.play()
@@ -105,6 +121,12 @@ class AudioHandler: NSObject, ObservableObject, AVAudioPlayerDelegate {
         myAudioPlayer.pause()
         isPlaying = false
     }
+    
+    func gainAdjust(_ gain: Float) {
+        myAudioPlayer.setVolume(gain, fadeDuration: 0.005)   // try 5 ms
+    }
+    
+    // SETUP
     
     func loadAudio() {
         let sound = Bundle.main.path(forResource: "Dun Ringill", ofType: "mp3")
@@ -119,6 +141,8 @@ class AudioHandler: NSObject, ObservableObject, AVAudioPlayerDelegate {
         }
     }
     
+    // DELEGATION
+    
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         print("Did finish playing!")
         isPlaying = false
@@ -129,6 +153,8 @@ class AudioHandler: NSObject, ObservableObject, AVAudioPlayerDelegate {
             play()
         }
     }
+    
+    // BLUETOOTH
     
     func enableBluetoothOutput() {
         let session = AVAudioSession.sharedInstance()
@@ -147,6 +173,8 @@ class AudioHandler: NSObject, ObservableObject, AVAudioPlayerDelegate {
             print("AVAudioSession error!")
         }
     }
+    
+    // SYSTEM VOLUME CONTROLS
     
     var systemVolume: Float = 0.0
     
