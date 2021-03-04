@@ -15,7 +15,7 @@ extension MPVolumeView {
     static func setVolume(_ volume: Float) {
         let volumeView = MPVolumeView()
         let slider = volumeView.subviews.first(where: { $0 is UISlider }) as? UISlider
-
+        
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5) {
             slider?.value = volume
         }
@@ -26,7 +26,7 @@ struct ContentView: View {
     @State var audioHandler: AudioHandler = AudioHandler()
     @State var showPlay: Bool = true
     @State var gain: Float = 0.5
-
+    
     var body: some View {
         VStack {
             // HIDDEN NON-LABELS
@@ -51,6 +51,23 @@ struct ContentView: View {
                 }
             
             // DISPLAYED LABELS AND CONTROLS
+            
+            Button(action: {
+//                let settingsUrl = URL(string: "App-Prefs:root=Bluetooth")         // MAB - This construction will supposedly open the Bluetooth settings themselves, but actually does exactly the same thing as the legal construction on the next line.
+                let settingsUrl = URL(string: UIApplication.openSettingsURLString)
+                
+                if UIApplication.shared.canOpenURL(settingsUrl!) {
+                    UIApplication.shared.open(settingsUrl!, completionHandler: { (success) in
+                        print("Settings opened: \(success)")
+                    })
+                }
+            }) {
+                Image(uiImage: UIImage(named: "favpng_gear-icon-design.png")!).resizable()
+                    .frame(width: 25, height: 25)
+                    .aspectRatio(contentMode: .fit)
+            }
+            
+            Spacer()
             
             Text("iMic").font(.system(size: 45)).font(.largeTitle)
             
@@ -85,6 +102,8 @@ struct ContentView: View {
                     audioHandler.gainAdjust(gain)
                 }
             Text("Volume:  \(Int(100.0*gain))%")
+            
+            Spacer()
         }
         .onAppear {
             print("Did appear!")

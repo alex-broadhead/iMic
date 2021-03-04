@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		651E0F5125F17357001C939C /* favpng_gear-icon-design.png in Resources */ = {isa = PBXBuildFile; fileRef = 651E0F5025F17357001C939C /* favpng_gear-icon-design.png */; };
 		652C36FF25F03EDE005BDC0A /* iMicApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652C36FE25F03EDE005BDC0A /* iMicApp.swift */; };
 		652C370125F03EDE005BDC0A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652C370025F03EDE005BDC0A /* ContentView.swift */; };
 		652C370325F03EDF005BDC0A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 652C370225F03EDF005BDC0A /* Assets.xcassets */; };
@@ -15,6 +16,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		651E0F5025F17357001C939C /* favpng_gear-icon-design.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "favpng_gear-icon-design.png"; sourceTree = "<group>"; };
 		652C36FB25F03EDE005BDC0A /* iMic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iMic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		652C36FE25F03EDE005BDC0A /* iMicApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iMicApp.swift; sourceTree = "<group>"; };
 		652C370025F03EDE005BDC0A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -54,6 +56,7 @@
 		652C36FD25F03EDE005BDC0A /* iMic */ = {
 			isa = PBXGroup;
 			children = (
+				651E0F5025F17357001C939C /* favpng_gear-icon-design.png */,
 				652C370E25F03FF6005BDC0A /* Dun Ringill.mp3 */,
 				652C36FE25F03EDE005BDC0A /* iMicApp.swift */,
 				652C370025F03EDE005BDC0A /* ContentView.swift */,
@@ -132,6 +135,7 @@
 				652C370625F03EDF005BDC0A /* Preview Assets.xcassets in Resources */,
 				652C370325F03EDF005BDC0A /* Assets.xcassets in Resources */,
 				652C370F25F03FF6005BDC0A /* Dun Ringill.mp3 in Resources */,
+				651E0F5125F17357001C939C /* favpng_gear-icon-design.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
