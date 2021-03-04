@@ -108,10 +108,10 @@ struct ContentView: View {
         .onAppear {
             print("Did appear!")
             audioHandler.enableBluetoothOutput()    // send output to Bluetooth, if available
-            audioHandler.loadAudio()                // load our file
             if overrideSystemVolume {
                 audioHandler.setSystemVolumeToMax() // override system volume
             }
+            audioHandler.loadAudio()                // load our file
             audioHandler.gainAdjust(gain)           // set initial gain
         }
     }
@@ -128,6 +128,7 @@ class AudioHandler: NSObject, ObservableObject, AVAudioPlayerDelegate {
     @Published var isPlaying: Bool = false  // not used for now
     
     var myAudioPlayer = AVAudioPlayer()
+    var lastSetGain: Float = 0.5
     
     // USER CONTROLS
     
@@ -142,7 +143,8 @@ class AudioHandler: NSObject, ObservableObject, AVAudioPlayerDelegate {
     }
     
     func gainAdjust(_ gain: Float) {
-        myAudioPlayer.setVolume(gain, fadeDuration: 0.005)   // try 5 ms
+        lastSetGain = gain
+        myAudioPlayer.setVolume(lastSetGain, fadeDuration: 0.005)   // try 5 ms
     }
     
     // SETUP
@@ -169,6 +171,7 @@ class AudioHandler: NSObject, ObservableObject, AVAudioPlayerDelegate {
         if flag {
             // For now, loop endlessly
             loadAudio()
+            gainAdjust(lastSetGain)
             play()
         }
     }
