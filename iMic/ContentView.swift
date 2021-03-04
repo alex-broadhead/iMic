@@ -7,6 +7,18 @@
 
 import SwiftUI
 import AVKit
+import MediaPlayer
+
+extension MPVolumeView {
+    static func setVolume(_ volume: Float) {
+        let volumeView = MPVolumeView()
+        let slider = volumeView.subviews.first(where: { $0 is UISlider }) as? UISlider
+
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5) {
+            slider?.value = volume
+        }
+    }
+}
 
 struct ContentView: View {
     @State var audioHandler: AudioHandler = AudioHandler()
@@ -14,6 +26,19 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
+            // MAB - These are super hacky, but work to handle notifications!
+            Text("")
+                .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+                    print("Will resign active!")
+                    audioHandler.returnSystemVolume()
+                }
+            
+            Text("")
+                .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                    print("Did become active!")
+                    audioHandler.setSystemVolumeToMax()
+                }
+            
             Text("iMic").font(.system(size: 45)).font(.largeTitle)
             
             HStack {
@@ -43,8 +68,10 @@ struct ContentView: View {
         }
         
         .onAppear {
-            audioHandler.loadAudio()                // load and play our file
+            print("Did appear!")
             audioHandler.enableBluetoothOutput()    // send output to Bluetooth, if available
+            audioHandler.loadAudio()                // load our file
+            audioHandler.setSystemVolumeToMax()
         }
     }
 }
@@ -111,5 +138,22 @@ class AudioHandler: NSObject, ObservableObject, AVAudioPlayerDelegate {
         } catch {
             print("AVAudioSession error!")
         }
+    }
+    
+    var systemVolume: Float = 0.0
+    
+    func getSystemVolume() -> Float {
+        return AVAudioSession.sharedInstance().outputVolume
+    }
+    
+    func setSystemVolumeToMax() {
+        systemVolume = getSystemVolume()
+        print("Saving volume of \(systemVolume)!")
+        MPVolumeView.setVolume(1.0)
+    }
+    
+    func returnSystemVolume() {
+        print("Restoring volume to \(systemVolume)!")
+        MPVolumeView.setVolume(systemVolume)
     }
 }
