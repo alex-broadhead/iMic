@@ -29,27 +29,6 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            // HIDDEN NON-LABELS
-            
-            // MAB - These are super hacky, but work to handle notifications!
-            //       I don't know why I have to anchor these to invisible UI components.
-            
-            Text("")
-                .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
-                    print("Will resign active!")
-                    if overrideSystemVolume {
-                        audioHandler.returnSystemVolume()
-                    }
-                }
-            
-            Text("")
-                .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
-                    print("Did become active!")
-                    if overrideSystemVolume {
-                        audioHandler.setSystemVolumeToMax()
-                    }
-                }
-            
             // DISPLAYED LABELS AND CONTROLS
             
             Button(action: {
@@ -106,13 +85,25 @@ struct ContentView: View {
             Spacer()
         }
         .onAppear {
-            print("Did appear!")
+//            print("Did appear!")
             audioHandler.enableBluetoothOutput()    // send output to Bluetooth, if available
             if overrideSystemVolume {
                 audioHandler.setSystemVolumeToMax() // override system volume
             }
             audioHandler.loadAudio()                // load our file
             audioHandler.gainAdjust(gain)           // set initial gain
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+//            print("Will resign active!")
+            if overrideSystemVolume {
+                audioHandler.returnSystemVolume()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+//            print("Did become active!")
+            if overrideSystemVolume {
+                audioHandler.setSystemVolumeToMax()
+            }
         }
     }
 }
