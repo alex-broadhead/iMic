@@ -29,7 +29,7 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            // DISPLAYED LABELS AND CONTROLS
+            // VIEW LABELS AND CONTROLS
             
             Button(action: {
 //                let settingsUrl = URL(string: "App-Prefs:root=Bluetooth")         // MAB - This construction will supposedly open the Bluetooth settings themselves, but actually does exactly the same thing as the legal construction on the next line.
@@ -84,6 +84,9 @@ struct ContentView: View {
             
             Spacer()
         }
+        
+        // VIEW LIFECYCLE
+        
         .onAppear {
 //            print("Did appear!")
             audioHandler.enableBluetoothOutput()    // send output to Bluetooth, if available
@@ -93,12 +96,14 @@ struct ContentView: View {
             audioHandler.loadAudio()                // load our file
             audioHandler.gainAdjust(gain)           // set initial gain
         }
+        
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
 //            print("Will resign active!")
             if overrideSystemVolume {
                 audioHandler.returnSystemVolume()
             }
         }
+        
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
 //            print("Did become active!")
             if overrideSystemVolume {
